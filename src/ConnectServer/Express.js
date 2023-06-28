@@ -5,7 +5,7 @@ const axios = require ('axios');
 
 const apikey = 'fc1d5233';
 
-//get a movie 
+//get a movie
 app.get('/getMovie',  (req,res)=>{
 const title = req.query.title;
 const querystr = `http://www.omdbapi.com/?t=${title}&apikey=${apikey}`;
