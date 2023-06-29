@@ -11,8 +11,6 @@ console.log(response.data.Title);
 console.log(response.data.Year);
 console.log(response.data.Genre);
 console.log(response.data.Plot);
-console.log(response.data.Ratings[0].Source);
-console.log(response.data.Ratings[0].Value);
 
 }
 );

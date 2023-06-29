@@ -14,7 +14,8 @@ mongoose.connect(db).then(()=>{
 const movieSchema = new mongoose.Schema({
     movieTitle: {type: String},
     movieYear: {type: String},
-    movieDirector: {type: String}
+    movieGenre: {type: String},
+    moviePlot: {type: String},
 });
 
 const Film = mongoose.model('6003CEM', movieSchema);

@@ -2,291 +2,363 @@ const Record = require('./Connect');
 const express = require('express');
 const app = express();
 const axios = require('axios');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// MongoDB connection
+mongoose
+  .connect('mongodb+srv://WebAPI_Ranveer:WebAPI_Ranveer@walmart-retail-dataset.7mu7vkk.mongodb.net/Web_API', { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch((error) => {
+    console.log('Error connecting to MongoDB:', error);
+  });
+
+// User schema
+const userSchema = new mongoose.Schema({
+  username: { type: String, unique: true },
+  password: String,
+});
+
+const User = mongoose.model('User', userSchema);
+
+// Register a new user
+app.post('/register', (req, res) => {
+  const { username, password } = req.body;
+
+  // Create a new user object
+  const newUser = new User({ username, password });
+
+  // Save the user to the database
+  newUser.save((error) => {
+    if (error) {
+      console.log('Error saving user:', error);
+      return res.status(500).send('Error registering user');
+    }
+    res.status(200).send('Registration successful');
+  });
+});
 
 const apikey = 'fc1d5233';
 
-// Middleware to parse request body
-app.use(express.urlencoded({ extended: true }));
+const registeredUsers = []; // Store registered users
 
-// Set up CSS styling
-const cssStyles = `
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-  
-    h1 {
-      margin-bottom: 20px;
-    }
-  
-    h2 {
-      margin-top: 30px;
-    }
-  
-    form {
-      margin-bottom: 20px;
-    }
-  
-    label {
-      display: block;
-      margin-bottom: 10px;
-    }
-  
-    input[type="text"] {
-      width: 300px;
-      padding: 5px;
-      margin-bottom: 10px;
-    }
-  
-    input[type="submit"] {
-      padding: 5px 10px;
-    }
-    
-    .back-button {
-      margin-top: 20px;
-    }
-    
-    .movie-container {
-      border: 1px solid #ccc;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-  
-    .movie-container h3 {
-      margin-top: 0;
-    }
-  
-    .movie-container p {
-      margin-bottom: 10px;
-    }
-  </style>
-`;
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // Set up HTML layout
-const htmlLayout = `
+const htmlLayout = (title, content) => `
   <!DOCTYPE html>
   <html>
-  <head>
-    <title>Movie CRUD</title>
-    ${cssStyles}
-  </head>
-  <body>
-    <h1>Movie CRUD</h1>
-    
-    <h2>Add Movie</h2>
-    <form action="/addMovie" method="POST">
-      <label for="title">Title:</label>
-      <input type="text" name="title" id="title" required>
-      <br>
-      <label for="year">Year:</label>
-      <input type="text" name="year" id="year" required>
-      <br>
-      <label for="director">Director:</label>
-      <input type="text" name="director" id="director" required>
-      <br>
-      <input type="submit" value="Add Movie">
-    </form>
-
-    <h2>Get All Movies</h2>
-    <button onclick="getAllMovies()">Get All Movies</button>
-    <div id="movies"></div>
-
-    <h2>Update Movie</h2>
-    <form action="/updateMovie" method="PUT">
-      <label for="title">Title:</label>
-      <input type="text" name="title" id="title" required>
-      <br>
-      <label for="newTitle">New Title:</label>
-      <input type="text" name="newTitle" id="newTitle" required>
-      <br>
-      <input type="submit" value="Update Movie">
-    </form>
-
-    <h2>Delete Movie</h2>
-    <form action="/deleteMovie" method="DELETE">
-      <label for="title">Title:</label>
-      <input type="text" name="title" id="title" required>
-      <br>
-      <input type="submit" value="Delete Movie">
-    </form>
-
-    <script>
-      function getAllMovies() {
-        fetch('/getAllMovies')
-          .then(response => response.json())
-          .then(data => {
-            const moviesContainer = document.getElementById('movies');
-            moviesContainer.innerHTML = '';
-
-            data.forEach(movie => {
-              const movieContainer = document.createElement('div');
-              movieContainer.className = 'movie-container';
-
-              const title = document.createElement('h3');
-              title.textContent = movie.movieTitle;
-
-              const year = document.createElement('p');
-              year.textContent = 'Year: ' + movie.movieYear;
-
-              const director = document.createElement('p');
-              director.textContent = 'Director: ' + movie.movieDirector;
-
-              movieContainer.appendChild(title);
-              movieContainer.appendChild(year);
-              movieContainer.appendChild(director);
-              moviesContainer.appendChild(movieContainer);
-            });
-          });
-      }
-    </script>
-  </body>
+    <head>
+      <title>${title}</title>
+    </head>
+    <body>
+      <h1>${title}</h1>
+      ${content}
+    </body>
   </html>
 `;
 
-// Create Movie
-app.post('/addMovie', (req, res) => {
-  const { title, year, director } = req.body;
-
-  const filmValue = new Record({
-    movieTitle: title,
-    movieYear: year,
-    movieDirector: director,
-  });
-
-  filmValue
-    .save()
-    .then(result => {
-      console.log('Movie added successfully:', result);
-      res.send('Movie added successfully');
-    })
-    .catch(error => {
-      console.log('Error adding movie:', error);
-      res.status(500).send('Error adding movie');
-    });
-});
-
-// Get All Movies
-app.get('/getAllMovies', (req, res) => {
-  Record.find()
-    .then(movies => {
-      console.log('All movies retrieved:', movies);
-      res.send(movies);
-    })
-    .catch(error => {
-      console.log('Error retrieving movies:', error);
-      res.status(500).send('Error retrieving movies');
-    });
-});
-
-// Update Movie
-app.get('/updateMovie', (req, res) => { // Change method to "get"
-    const { title, newTitle } = req.query;
-  
-    Record.findOneAndUpdate(
-      { movieTitle: title },
-      { movieTitle: newTitle },
-      { new: true }
-    )
-      .then(updatedMovie => {
-        if (updatedMovie) {
-          console.log('Movie updated successfully:', updatedMovie);
-          res.send('Movie updated successfully');
-        } else {
-          console.log('Movie not found');
-          res.status(404).send('Movie not found');
-        }
-      })
-      .catch(error => {
-        console.log('Error updating movie:', error);
-        res.status(500).send('Error updating movie');
-      });
-  });
-
-// Delete Movie
-app.get('/deleteMovie', (req, res) => {
-  const title = req.query.title;
-
-  Record.findOneAndDelete({ movieTitle: title })
-    .then(deletedMovie => {
-      if (deletedMovie) {
-        console.log('Movie deleted successfully:', deletedMovie);
-        res.send('Movie deleted successfully');
-      } else {
-        console.log('Movie not found');
-        res.status(404).send('Movie not found');
-      }
-    })
-    .catch(error => {
-      console.log('Error deleting movie:', error);
-      res.status(500).send('Error deleting movie');
-    });
-});
-
-// Render HTML layout
+// Home page
 app.get('/', (req, res) => {
-  res.send(htmlLayout);
+  const content = `
+    <p>Welcome to the Movie API homepage!</p>
+    <ul>
+      <li><a href="/getAllMovie">Get All Movies</a></li>
+      <li><a href="/getMovie">Get a Movie</a></li>
+      <li><a href="/updateMovie">Update a Movie</a></li>
+      <li><a href="/deleteMovie">Delete a Movie</a></li>
+      <li><a href="/deleteAllMovie">Delete All Movies</a></li>
+      <li><a href="/login">Login</a></li>
+      <li><a href="/register">Register</a></li>
+    </ul>
+  `;
+  res.send(htmlLayout("Movie API", content));
 });
 
-// Start the server
-app.listen(5000, () => {
-  console.log('Server started on port 5000');
+// Login page
+app.get('/login', (req, res) => {
+  res.send(`
+    <h2>Login</h2>
+    <form action="/login" method="POST">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" /><br />
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" /><br />
+      <button type="submit">Login</button>
+    </form>
+  `);
+});
+
+// Register page
+app.get('/register', (req, res) => {
+  res.send(`
+    <h2>Register</h2>
+    <form action="/register" method="POST">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" /><br />
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" /><br />
+      <button type="submit">Register</button>
+    </form>
+  `);
+});
+
+// Login
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // Find the user in the database
+  User.findOne({ username }, (error, user) => {
+    if (error) {
+      console.log('Error finding user:', error);
+      return res.status(500).send('Error finding user');
+    }
+    if (!user) {
+      // User not found
+      return res.status(404).send('User not found. Please register first.');
+    }
+
+    // Check if the password matches
+    if (user.password !== password) {
+      return res.status(401).send('Invalid password');
+    }
+
+    // Successful login
+    res.status(200).send('Login successful');
+  });
 });
 
 
-//Different style
-//get a movie
-/*app.get('/getMovie',  (req,res)=>{
-const title = req.query.title;
-const querystr = `http://www.omdbapi.com/?t=${title}&apikey=${apikey}`;
-    axios.get(querystr).then((response)=>{
-    Title = response.data.Title;
-    Year = response.data.Year;
-    Director = response.data.Director;
+// Handle register form submission
+app.post('/register', (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
 
-    filmValue = new Record({
-        movieTitle:Title,
-        movieYear:Year,
-        movieDirector:Director,
-    });
-
-    filmValue.save().then(result=>{
-        console.log("Success"+result);
-    }).catch(error=>{
-        console.log("Error"+error);
-    })
-    res.send(Title + "<br>" + Year + "<br>" + Director + "<br>" + "Record saved");
-
-}
-    );
+  // Check if the user is already registered
+  const existingUser = registeredUsers.find((user) => user.username === username);
+  if (existingUser) {
+    res.send('Username already taken. Please choose a different username.');
+  } else {
+    registeredUsers.push({ username, password });
+    res.send('Registration successful');
+  }
 });
 
-//delete one movie
-app.get('/deleteMovie',(req, res)=>{
-    const title = req.query.title;
-    console.log(title);
-    Record.deleteOne({ movieTitle: title},function(err){
-            if (err) return handleError(err);
-            //deleted at most one tanked docuement
+
+// Get all movies
+app.get('/getAllMovie', (req, res) => {
+  Record.find({}, (err, movies) => {
+    if (err) {
+      console.log("Error retrieving movies: " + err);
+      const content = `
+        <p>Error retrieving movies from the database</p>
+        <p><a href="/">Go back to homepage</a></p>
+      `;
+      res.status(500).send(htmlLayout("Get All Movies", content));
+    } else {
+      let movieList = '';
+      movies.forEach((movie) => {
+        movieList += `<li>${movie.movieTitle} (${movie.movieYear}) - ${movie.movieGenre} - ${movie.moviePlot}</li>`;
+      });
+
+      const content = `
+        <h2>All Movies</h2>
+        <ul>${movieList}</ul>
+        <p><a href="/">Go back to homepage</a></p>
+      `;
+      res.send(htmlLayout("Get All Movies", content));
+    }
+  });
+});
+
+// Get a movie
+app.get('/getMovie', (req, res) => {
+  const title = req.query.title || '';
+
+  const form = `
+    <form action="/getMovie" method="GET">
+      <label for="title">Movie Title:</label>
+      <input type="text" id="title" name="title" value="${title}" />
+      <button type="submit">Get Movie</button>
+    </form>
+  `;
+
+  if (!title) {
+    const content = `
+      <h2>Get a Movie</h2>
+      ${form}
+    `;
+    res.send(htmlLayout("Get a Movie", content));
+  } else {
+    const querystr = `http://www.omdbapi.com/?t=${title}&apikey=${apikey}`;
+    axios.get(querystr)
+      .then((response) => {
+        const Title = response.data.Title;
+        const Year = response.data.Year;
+        const Genre = response.data.Genre;
+        const Plot = response.data.Plot;
+        const Poster = response.data.Poster;
+
+        const filmValue = new Record({
+          movieTitle: Title,
+          movieYear: Year,
+          movieGenre: Genre,
+          moviePlot: Plot,
+          moviePoster: Poster,
         });
 
-        res.send(title + "deleted");
-    
+        filmValue.save()
+          .then(result => {
+            console.log("Success: " + result);
+          })
+          .catch(error => {
+            console.log("Error: " + error);
+          });
+
+        const content = `
+          <h2>${Title}</h2>
+          <p>Year: ${Year}</p>
+          <p>Genre: ${Genre}</p>
+          <p>Plot: ${Plot}</p>
+          <img src="${Poster}" alt="${Title} Poster" width="200" />
+          <p>Record saved</p>
+          <p><a href="/">Go back to homepage</a></p>
+        `;
+
+        res.send(htmlLayout("Get a Movie", content));
+      })
+      .catch(error => {
+        const content = `
+          <h2>Error</h2>
+          <p>${error.message}</p>
+          <p><a href="/">Go back to homepage</a></p>
+        `;
+
+        res.send(htmlLayout("Get a Movie", content));
+      });
+  }
 });
 
-//delete all movie
-app.get('/deleteAllMovie', (req, res) => {
-    Record.deleteMany({}, (err) => {
+// Update a movie
+app.get('/updateMovie', (req, res) => {
+  const title = req.query.title || '';
+  const genre = req.query.genre || '';
+  const plot = req.query.plot || '';
+
+  const form = `
+    <form action="/updateMovie" method="GET">
+      <label for="title">Movie Title:</label>
+      <input type="text" id="title" name="title" value="${title}" /><br />
+      <label for="genre">Genre:</label>
+      <input type="text" id="genre" name="genre" value="${genre}" /><br />
+      <label for="plot">Plot:</label>
+      <input type="text" id="plot" name="plot" value="${plot}" /><br />
+      <button type="submit">Update Movie</button>
+    </form>
+  `;
+
+  if (!title) {
+    const content = `
+      <h2>Update a Movie</h2>
+      ${form}
+    `;
+    res.send(htmlLayout("Update a Movie", content));
+  } else {
+    Record.findOneAndUpdate(
+      { movieTitle: title },
+      { $set: { movieGenre: genre, moviePlot: plot } },
+      { new: true },
+      (err, updatedMovie) => {
         if (err) {
-            console.log("Error deleting documents: " + err);
-            res.status(500).send("Error deleting documents from the database");
+          console.log("Error updating movie: " + err);
+          const content = `
+            <p>Error updating movie in the database</p>
+            <p><a href="/">Go back to homepage</a></p>
+          `;
+          res.status(500).send(htmlLayout("Update a Movie", content));
         } else {
-            console.log("All documents deleted successfully");
-            res.send("All movies deleted");
+          if (!updatedMovie) {
+            const content = `
+              <p>No movie found with the title "${title}"</p>
+              <p><a href="/updateMovie">Try again</a></p>
+              <p><a href="/">Go back to homepage</a></p>
+            `;
+            res.send(htmlLayout("Update a Movie", content));
+          } else {
+            const content = `
+              <h2>Movie Updated</h2>
+              <p>Title: ${updatedMovie.movieTitle}</p>
+              <p>Genre: ${updatedMovie.movieGenre}</p>
+              <p>Plot: ${updatedMovie.moviePlot}</p>
+              <p><a href="/updateMovie">Update another movie</a></p>
+              <p><a href="/">Go back to homepage</a></p>
+            `;
+            res.send(htmlLayout("Update a Movie", content));
+          }
         }
-    });
+      }
+    );
+  }
 });
-*/
+
+// Delete one movie
+app.get('/deleteMovie', (req, res) => {
+  const title = req.query.title || '';
+
+  const form = `
+    <form action="/deleteMovie" method="GET">
+      <label for="title">Movie Title:</label>
+      <input type="text" id="title" name="title" value="${title}" />
+      <button type="submit">Delete Movie</button>
+    </form>
+  `;
+
+  if (!title) {
+    const content = `
+      <h2>Delete a Movie</h2>
+      ${form}
+    `;
+    res.send(htmlLayout("Delete a Movie", content));
+  } else {
+    Record.deleteOne({ movieTitle: title }, function (err) {
+      if (err) return handleError(err);
+      // Deleted at most one document
+    });
+
+    const content = `
+      <p>${title} deleted</p>
+      <p><a href="/">Go back to homepage</a></p>
+    `;
+    res.send(htmlLayout("Delete a Movie", content));
+  }
+});
+
+// Delete all movies
+app.get('/deleteAllMovie', (req, res) => {
+  Record.deleteMany({}, (err) => {
+    if (err) {
+      console.log("Error deleting documents: " + err);
+      const content = `
+        <p>Error deleting documents from the database</p>
+        <p><a href="/">Go back to homepage</a></p>
+      `;
+      res.status(500).send(htmlLayout("Delete All Movies", content));
+    } else {
+      console.log("All documents deleted successfully");
+      const content = `
+        <p>All movies deleted</p>
+        <p><a href="/">Go back to homepage</a></p>
+      `;
+      res.send(htmlLayout("Delete All Movies", content));
+    }
+  });
+});
+
+app.listen(5000);
 
 
 //npm install axios
