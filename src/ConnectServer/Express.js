@@ -6,7 +6,162 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const apikey = 'fc1d5233';
 
-app.use(bodyParser.urlencoded({ extended: false }));
+// Implementing CSS styles
+const cssStyles = `
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #E5CFEC;
+  }
+  
+  h1 {
+    color: #220A8F;
+    margin: 20px;
+  }
+  
+  h2 {
+    text-align: center;
+    color: #5D4AB5;
+    margin: 10px;
+    margin-top: 100px;
+    margin-bottom: 20px;
+    font-size: 35px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    line-height: 1.2;
+  }
+  
+  h4 {
+    font-family: Copperplate;
+    color: #5D4AB5;
+    margin: 20px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.2;
+  }
+
+  h6 {
+    font-family: Verdana;
+    color: #051f3b;
+    margin: 20px;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    font-size: 15px;
+  }
+
+  form {
+    margin-bottom: 20px;
+    text-align: center; 
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  input[type="text"],
+  input[type="password"] {
+    width: 300px;
+    padding: 15px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    border: 3px solid #ccc;
+    border-radius: 8px;
+    font-size: 20px;
+    color: #333;
+  }
+
+  input[type="text"]:focus,
+  input[type="password"]:focus {
+    outline: none;
+    border-color: #66afe9;
+    box-shadow: 0 0 5px #66afe9;
+  }
+
+  input[type="text"]::placeholder,
+  input[type="password"]::placeholder {
+    color: #999;
+  }
+  
+  button {
+    padding: 5px 10px;
+    background-color: #242424;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease-in-out;
+    font-size: 20px;
+  }
+  
+  button:hover {
+    background-color: #3EFF00;
+    color: black;
+  }
+  
+  button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+  }
+
+  button[type="submit"]:hover {
+    background-color: #0056b3;
+    color: #fff;
+  }
+  
+  a {
+    color: #BD1B0A;
+    text-decoration: none;
+    position: relative;
+    display: inline-block;
+    transition: color 0.3s ease-in-out;
+    font-weight: bold; 
+    text-transform: uppercase; 
+  }
+  
+  a:hover {
+    color: black;
+  }
+  
+  a::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px; /* Increased height for a thicker underline */
+    bottom: -4px; /* Adjusted position to align with the text */
+    left: 0;
+    background-color: red;
+    visibility: hidden;
+    transform: scaleX(0);
+    transition: all 0.3s ease-in-out;
+  }
+  
+  a:hover::before {
+    visibility: visible;
+    transform: scaleX(1);
+
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  li {
+    margin-bottom: 5px;
+  }
+  
+  p {
+    margin: 10px;
+  }
+</style>`;
+
+app.use(bodyParser.urlencoded({ extended: false })); // Process data sent in an HTTP request body for Login & Register
+app.use(express.static('public')); // Serve static files from the "public" directory
 
 // MongoDB connection
 mongoose
@@ -29,6 +184,7 @@ const User = mongoose.model('User', userSchema);
 // Login page
 app.get('/', (req, res) => {
   res.send(`
+  ${cssStyles}  
     <h2>Login Page</h2>
     <form action="/login" method="POST">
       <label for="username">Username:</label>
@@ -63,7 +219,7 @@ app.post('/login', (req, res) => {
 
     // Successful login
     const content = `
-      <p>Welcome, ${username}! <br><a href="/homepage">Go to homepage</a></p>
+      <h6>Welcome, ${username}! <br><br><a href="/homepage">Go to homepage</a></h6>
     `;
     res.send(htmlLayout("Movie API", content));
   });
@@ -72,6 +228,8 @@ app.post('/login', (req, res) => {
 // Register page
 app.get('/register', (req, res) => {
   res.send(`
+  ${cssStyles}
+  <link rel="stylesheet" type="text/css" href="styles.css">
     <h2>Register Page</h2>
     <form action="/register" method="POST">
       <label for="username">Username:</label>
@@ -107,6 +265,7 @@ const htmlLayout = (title, content) => `
   <html>
     <head>
       <title>${title}</title>
+      ${cssStyles}  
     </head>
     <body>
       <h1>${title}</h1>
@@ -118,15 +277,15 @@ const htmlLayout = (title, content) => `
 // Home page
 app.get('/homepage', (req, res) => {
   const content = `
-    <p>Welcome to the Movie API homepage!</p>
+    <h6>Welcome to the Movie API homepage!</h6>
     <ul>
-      <li><a href="/getAllMovie">Get All Movies</a></li>
-      <li><a href="/getMovie">Get a Movie</a></li>
-      <li><a href="/updateMovie">Update a Movie</a></li>
-      <li><a href="/deleteMovie">Delete a Movie</a></li>
-      <li><a href="/deleteAllMovie">Delete All Movies</a></li>
+      <li><a href="/getAllMovie">Get All Movies</a></li><br>
+      <li><a href="/getMovie">Get a Movie</a></li><br>
+      <li><a href="/updateMovie">Update a Movie</a></li><br>
+      <li><a href="/deleteMovie">Delete a Movie</a></li><br>
+      <li><a href="/deleteAllMovie">Delete All Movies</a></li><br>
     </ul>
-    <p><a href="/">Logout</a></p>
+    <h6><a href="/">Logout</a></h6>
   `;
   res.send(htmlLayout("Movie API", content));
 });
@@ -137,20 +296,24 @@ app.get('/getAllMovie', (req, res) => {
     if (err) {
       console.log("Error retrieving movies: " + err);
       const content = `
-        <p>Error retrieving movies from the database</p>
-        <p><a href="/homepage">Go back to homepage</a></p>
+        <h6>Error retrieving movies from the database</h6>
+        <h4><a href="/homepage">Go back to homepage</a></h4>
       `;
       res.status(500).send(htmlLayout("Get All Movies", content));
     } else {
       let movieList = '';
       movies.forEach((movie) => {
-        movieList += `<li>${movie.movieTitle} (${movie.movieYear}) - ${movie.movieGenre} - ${movie.moviePlot}</li>`;
+        movieList += `<h6><strong>Title:</strong> ${movie.movieTitle}</h6>`;
+        movieList += `<h6><strong>Year:</strong> ${movie.movieYear}</h6>`;
+        movieList += `<h6><strong>Genre:</strong> ${movie.movieGenre}</h6>`;
+        movieList += `<h6><strong>Plot:</strong> ${movie.moviePlot}</h6>`;
+        movieList += '<hr>'; // Add a horizontal rule after each movie
       });
 
       const content = `
+        <h4><a href="/homepage">Go back to homepage</a></h4>
         <h2>All Movies</h2>
-        <ul>${movieList}</ul>
-        <p><a href="/homepage">Go back to homepage</a></p>
+        ${movieList}
       `;
       res.send(htmlLayout("Get All Movies", content));
     }
@@ -165,12 +328,13 @@ app.get('/getMovie', (req, res) => {
     <form action="/getMovie" method="GET">
       <label for="title">Movie Title:</label>
       <input type="text" id="title" name="title" value="${title}" />
-      <button type="submit">Get Movie</button>
+      <br /><button type="submit">Get Movie</button>
     </form>
   `;
 
   if (!title) {
     const content = `
+      <h4><a href="/homepage">Go back to homepage</a></h4>
       <h2>Insert a movie title and get the descriptions</h2>
       ${form}
     `;
@@ -202,13 +366,13 @@ app.get('/getMovie', (req, res) => {
           });
 
         const content = `
-          <h2>${Title}</h2>
-          <p>Year: ${Year}</p>
-          <p>Genre: ${Genre}</p>
-          <p>Plot: ${Plot}</p>
-          <img src="${Poster}" alt="${Title} Poster" width="200" />
-          <p>Record saved</p>
-          <p><a href="/homepage">Go back to homepage</a></p>
+          <h4><a href="/homepage">Go back to homepage</a></h4>
+          <h2>${Title}</hh6>
+          <h6>Year: ${Year}</h6>
+          <h6>Genre: ${Genre}</h6>
+          <h6>Plot: ${Plot}</h6>
+          <h6><img src="${Poster}" alt="${Title} Poster" width="200" /></h6>
+          <h6>Record saved</h6>
         `;
 
         res.send(htmlLayout("Get a Movie", content));
@@ -216,8 +380,8 @@ app.get('/getMovie', (req, res) => {
       .catch(error => {
         const content = `
           <h2>Error</h2>
-          <p>${error.message}</p>
-          <p><a href="/">Go back to homepage</a></p>
+          <h6>${error.message}</h6>
+          <h4><a href="/">Go back to homepage</a></h4>
         `;
 
         res.send(htmlLayout("Get a Movie", content));
@@ -245,6 +409,7 @@ app.get('/updateMovie', (req, res) => {
 
   if (!title) {
     const content = `
+      <h4><a href="/homepage">Go back to homepage</a></h4>
       <h2>Choose a movie title and update the details</h2>
       ${form}
     `;
@@ -258,26 +423,26 @@ app.get('/updateMovie', (req, res) => {
         if (err) {
           console.log("Error updating movie: " + err);
           const content = `
-            <p>Error updating movie in the database</p>
-            <p><a href="/homepage">Go back to homepage</a></p>
+            <h6>Error updating movie in the database</h6>
+            <h4><a href="/homepage">Go back to homepage</a></h4>
           `;
           res.status(500).send(htmlLayout("Update a Movie", content));
         } else {
           if (!updatedMovie) {
             const content = `
-              <p>No movie found with the title "${title}"</p>
-              <p><a href="/updateMovie">Try again</a></p>
-              <p><a href="/homepage">Go back to homepage</a></p>
+              <h6>No movie found with the title "${title}"</h6>
+              <h6><a href="/updateMovie">Try again</a></h6>
+              <h4><a href="/homepage">Go back to homepage</a></h4>
             `;
             res.send(htmlLayout("Update a Movie", content));
           } else {
             const content = `
               <h2>Movie Updated</h2>
-              <p>Title: ${updatedMovie.movieTitle}</p>
-              <p>Genre: ${updatedMovie.movieGenre}</p>
-              <p>Plot: ${updatedMovie.moviePlot}</p>
-              <p><a href="/updateMovie">Update another movie</a></p>
-              <p><a href="/homepage">Go back to homepage</a></p>
+              <h6>Title: ${updatedMovie.movieTitle}</h6>
+              <h6>Genre: ${updatedMovie.movieGenre}</h6>
+              <h6>Plot: ${updatedMovie.moviePlot}</h6><br><br>
+              <h6><a href="/updateMovie">Update another movie</a></h6>
+              <h4><a href="/homepage">Go back to homepage</a></h4>
             `;
             res.send(htmlLayout("Update a Movie", content));
           }
@@ -295,12 +460,13 @@ app.get('/deleteMovie', (req, res) => {
     <form action="/deleteMovie" method="GET">
       <label for="title">Movie Title:</label>
       <input type="text" id="title" name="title" value="${title}" />
-      <button type="submit">Delete Movie</button>
+      <br /><button type="submit">Delete Movie</button>
     </form>
   `;
 
   if (!title) {
     const content = `
+      <h4><a href="/homepage">Go back to homepage</a></h4>
       <h2>Insert the title of the movie you wish to delete</h2>
       ${form}
     `;
@@ -312,8 +478,8 @@ app.get('/deleteMovie', (req, res) => {
     });
 
     const content = `
-      <p>${title} deleted</p>
-      <p><a href="/homepage">Go back to homepage</a></p>
+      <h6>${title} deleted</h6>
+      <h4><a href="/homepage">Go back to homepage</a></h4>
     `;
     res.send(htmlLayout("Delete a Movie", content));
   }
@@ -325,15 +491,15 @@ app.get('/deleteAllMovie', (req, res) => {
     if (err) {
       console.log("Error deleting documents: " + err);
       const content = `
-        <p>Error deleting documents from the database</p>
-        <p><a href="/homepage">Go back to homepage</a></p>
+        <h6>Error deleting documents from the database</h6>
+        <h4><a href="/homepage">Go back to homepage</a></h4>
       `;
       res.status(500).send(htmlLayout("Delete All Movies", content));
     } else {
       console.log("All documents deleted successfully");
       const content = `
-        <p>All movies deleted</p>
-        <p><a href="/homepage">Go back to homepage</a></p>
+        <h4><a href="/homepage">Go back to homepage</a></h4>
+        <h6>All movies deleted</h6>
       `;
       res.send(htmlLayout("Delete All Movies", content));
     }
@@ -348,3 +514,4 @@ app.listen(5000);
 //npm install mongodb
 //npm install react
 //npm install express --save
+//npm install body-parser
