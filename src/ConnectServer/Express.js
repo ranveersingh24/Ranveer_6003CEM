@@ -4,6 +4,7 @@ const app = express();
 const axios = require('axios');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const apikey = 'fc1d5233';
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -25,7 +26,7 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-// Register and Login page
+// Login page
 app.get('/', (req, res) => {
   res.send(`
     <h2>Login Page</h2>
@@ -40,7 +41,7 @@ app.get('/', (req, res) => {
   `);
 });
 
-// Login
+// Login function
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
@@ -68,7 +69,22 @@ app.post('/login', (req, res) => {
   });
 });
 
-// Register
+// Register page
+app.get('/register', (req, res) => {
+  res.send(`
+    <h2>Register Page</h2>
+    <form action="/register" method="POST">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" /><br />
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" /><br />
+      <button type="submit">Register</button>
+      <p>Already have an account? Click here to login now <button type="button" onclick="window.location.href='/'">Login</button>
+    </form>
+  `);
+});
+
+// Register function
 app.post('/register', (req, res) => {
   const { username, password } = req.body;
 
@@ -84,11 +100,6 @@ app.post('/register', (req, res) => {
     res.status(200).send('Registration successful! <br> Click here to login now <a href="/">Login</a>');
   });
 });
-
-const apikey = 'fc1d5233';
-const registeredUsers = []; // Store registered users
-
-app.use(bodyParser.urlencoded({ extended: false }));
 
 // Set up HTML layout
 const htmlLayout = (title, content) => `
@@ -118,21 +129,6 @@ app.get('/homepage', (req, res) => {
     <p><a href="/">Logout</a></p>
   `;
   res.send(htmlLayout("Movie API", content));
-});
-
-// Register page
-app.get('/register', (req, res) => {
-  res.send(`
-    <h2>Register Page</h2>
-    <form action="/register" method="POST">
-      <label for="username">Username:</label>
-      <input type="text" id="username" name="username" /><br />
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" /><br />
-      <button type="submit">Register</button>
-      <p>Already have an account? Click here to login now <button type="button" onclick="window.location.href='/'">Login</button>
-    </form>
-  `);
 });
 
 // Get all movies
