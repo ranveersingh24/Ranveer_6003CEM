@@ -171,7 +171,7 @@ app.get('/getMovie', (req, res) => {
 
   if (!title) {
     const content = `
-      <h2>Get a Movie</h2>
+      <h2>Insert a movie title and get the descriptions</h2>
       ${form}
     `;
     res.send(htmlLayout("Get a Movie", content));
@@ -245,7 +245,7 @@ app.get('/updateMovie', (req, res) => {
 
   if (!title) {
     const content = `
-      <h2>Update a Movie</h2>
+      <h2>Choose a movie title and update the details</h2>
       ${form}
     `;
     res.send(htmlLayout("Update a Movie", content));
@@ -301,7 +301,7 @@ app.get('/deleteMovie', (req, res) => {
 
   if (!title) {
     const content = `
-      <h2>Delete a Movie</h2>
+      <h2>Insert the title of the movie you wish to delete</h2>
       ${form}
     `;
     res.send(htmlLayout("Delete a Movie", content));
