@@ -17,4 +17,14 @@ Install the packages
 5. npm install express --save
 6. npm install body-parser
 
+Functions
+1. Login & register
+2. Get all movies
+3. Get a movie
+4. Update a movie
+5. Delete a movie
+6. Delete all movie
+7. Logout
+
+   
 Then, run in localhost:5000
