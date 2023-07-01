@@ -6,6 +6,7 @@
 ### a) React (Frontend)
 Deployed in Netlify server
 https://web-api-ranveer-singh-omdbapi.netlify.app/
+
 Click on the URL to view the deployed website using OMDb API 
 
 ### b) Express (Backend)
