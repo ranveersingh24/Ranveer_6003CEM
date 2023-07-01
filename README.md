@@ -26,6 +26,3 @@ Functions
 5. Delete a movie
 6. Delete all movie
 7. Logout
-
-   
-Then, run in localhost:5000
