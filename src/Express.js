@@ -536,7 +536,6 @@ app.listen(5000);
 //npm install axios
 //npm install mongoose@6.10.0
 //npm install mongodb
-//npm install react
 //npm install express --save
 //npm install body-parser
 //npm install bcrypt
