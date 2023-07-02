@@ -28,3 +28,4 @@ module.exports = Film;
 //npm install react
 //npm install express --save
 //npm install body-parser
+//npm install bcrypt
