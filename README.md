@@ -1,7 +1,7 @@
 # Web API Development Assignment
 ## by Ranveer Singh
 ### OMDb API
-
+[![Netlify Status](https://api.netlify.com/api/v1/badges/5b390d4d-e74a-4461-8674-59d1cf394935/deploy-status)](https://app.netlify.com/sites/web-api-ranveer-singh-omdbapi/deploys)
 
 ### a) React (Frontend)
 Run npm install to retrieve the node modules
