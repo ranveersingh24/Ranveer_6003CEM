@@ -5,6 +5,7 @@
 
 ### a) React (Frontend)
 Run npm install to retrieve the node modules
+
 Deployed in Netlify server
 https://web-api-ranveer-singh-omdbapi.netlify.app/
 
